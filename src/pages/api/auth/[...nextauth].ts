@@ -11,7 +11,7 @@ export default NextAuth({
       clientSecret: process.env.GITHUB_SECRET
     })
   ],
-  secret: process.env.NEXT_AUTH_SECRET,
+  // secret: process.env.NEXT_AUTH_SECRET,
   callbacks: {
     async signIn({ user }) {
       const { email } = user;
