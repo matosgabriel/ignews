@@ -4,7 +4,23 @@ import { GetStaticProps } from 'next';
 import { getPrismicClient } from '../../services/prismic';
 import Prismic from '@prismicio/client';
 
-export default function Posts() {
+interface PostFromPrismic {
+  title: [{ text: string }];
+  content: [{ text: string, type: string }];
+}
+
+interface Post {
+  slug: string,
+  updatedAt: string;
+  title: string;
+  excerpt: string;
+}
+
+interface PostProps {
+  posts: Post[];
+}
+
+export default function Posts({ posts }: PostProps) {
   return (
     <>
       <Head>
@@ -13,21 +29,17 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="">
-            <time>26 de fevereiro de 2022</time>
-            <strong>jQuery: a história da biblioteca JS mais usada da última década</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo quam numquam, modi totam dignissimos quidem ad, eum qui ex accusamus inventore dolorum optio minus nulla. Reprehenderit doloribus deserunt veritatis illo!</p>
-          </a>
-          <a href="">
-            <time>26 de fevereiro de 2022</time>
-            <strong>jQuery: a história da biblioteca JS mais usada da última década</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo quam numquam, modi totam dignissimos quidem ad, eum qui ex accusamus inventore dolorum optio minus nulla. Reprehenderit doloribus deserunt veritatis illo!</p>
-          </a>
-          <a href="">
-            <time>26 de fevereiro de 2022</time>
-            <strong>jQuery: a história da biblioteca JS mais usada da última década</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo quam numquam, modi totam dignissimos quidem ad, eum qui ex accusamus inventore dolorum optio minus nulla. Reprehenderit doloribus deserunt veritatis illo!</p>
-          </a>
+          {
+            posts.map(post => {
+              return (
+                <a href="" key={post.slug}>
+                  <time>{post.updatedAt}</time>
+                  <strong>{post.title}</strong>
+                  <p>{post.excerpt}</p>
+                </a>
+              );
+            })
+          }
         </div>
       </main>
     </>
@@ -37,15 +49,26 @@ export default function Posts() {
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
 
-  const response = await prismic.query(
+  const response = await prismic.query<PostFromPrismic>(
     Prismic.Predicates.at('document.type', 'publication'), {
       fetch: ['publication.title', 'publication.content'],
     }
   );
 
-  console.log(JSON.stringify(response, null, 2));
+  const posts = response.results.map(post => ({
+    slug: post.uid,
+    updatedAt: new Date(post.last_publication_date).toLocaleDateString('pr-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }),
+    title: post.data.title[0].text,
+    excerpt: post.data.content.find(content => content.type === 'paragraph')?.text ?? ''
+  }));
+
+  // console.log(JSON.stringify(response, null, 2));
 
   return {
-    props: {}
+    props: { posts }
   };
 }
