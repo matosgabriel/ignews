@@ -2,6 +2,7 @@ import styles from './styles.module.scss';
 import { useSession, signIn } from 'next-auth/react';
 import { api } from '../../services/api';
 import { getStripeJs } from '../../services/stripe-js';
+import { useRouter } from 'next/router';
 
 // Typing the subscribe button properties
 interface SubscribeButtonProps {
@@ -10,8 +11,8 @@ interface SubscribeButtonProps {
 
 // Button for the subscribe action
 export function SubscribeButton({ priceId }: SubscribeButtonProps) {
-  // Get the session info (next-auth)
-  const { data, status } = useSession();
+  const { data, status } = useSession(); // Get the session info (next-auth)
+  const route = useRouter(); // Get the route (next/route)
   
   // Function who handles with subscribe button click
   async function handleSubscribe() {
@@ -21,6 +22,13 @@ export function SubscribeButton({ priceId }: SubscribeButtonProps) {
       return;
     }
     
+    // Ensures that only non subscribed users can create a subscription
+    if (data.activeSubscription) {
+      route.push('/');
+      alert('You have an active subscription!');
+      return;
+    }
+
     // Checkout session creation
     try {
       // Submits a request for the node server of Next on subscribe route (create a new checkout session)

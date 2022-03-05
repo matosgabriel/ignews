@@ -21,11 +21,6 @@ interface PostProps {
 }
 
 function Post({ post }: PostProps) {
-  const { query } = useRouter();
-  const { slug } = query;
-  
-  console.log(slug);
-  console.log(post);
   return (
     <>
       <Head>
@@ -52,9 +47,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
   const session = await getSession({ req });
   const { slug } = params;
 
-  // if (!session) {
+  console.log(session);
 
-  // }
+  if (!session.activeSubscription) {
+    return { 
+      redirect: {
+        destination: '/',
+        permanent: false
+      } 
+    }
+  }
 
   const prismic = getPrismicClient(req);
 
