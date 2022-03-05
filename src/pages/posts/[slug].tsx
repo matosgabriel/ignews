@@ -3,20 +3,45 @@ import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { getPrismicClient } from '../../services/prismic';
+import { RichText } from 'prismic-dom';
 
 import { PostFromPrismic } from './index';
 
-function Post() {
+import styles from './post.module.scss';
+
+interface Post {
+  slug: string,
+  updatedAt: string;
+  title: string;
+  content: string;
+}
+
+interface PostProps {
+  post: Post;
+}
+
+function Post({ post }: PostProps) {
   const { query } = useRouter();
   const { slug } = query;
   
   console.log(slug);
+  console.log(post);
   return (
     <>
       <Head>
         <title>Post | ig.news</title>
       </Head>
-      <h1>Hello arthur</h1>
+      <main className={styles.container}>
+        <article className={styles.post}>
+          <h1>{ post.title }</h1>
+          <time>{ post.updatedAt }</time>
+          
+          <div
+            dangerouslySetInnerHTML={{ __html: post.content }}
+            className={styles.postContent}
+          />
+        </article>
+      </main>
     </>
   );
 }
@@ -27,9 +52,24 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
   const session = await getSession({ req });
   const { slug } = params;
 
+  // if (!session) {
+
+  // }
+
   const prismic = getPrismicClient(req);
 
   const response = await prismic.getByUID<PostFromPrismic>('publication', String(slug), {});
 
-  return { props: {} }
+  const post = {
+    slug,
+    title: response.data.title[0].text,
+    content: RichText.asHtml(response.data.content),
+    updatedAt: new Date(response.last_publication_date).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+  }
+
+  return { props: { post } }
 }
