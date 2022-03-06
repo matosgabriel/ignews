@@ -8,8 +8,7 @@
   padding: 0 2rem;
   height: calc(100vh - 5rem);
 
-  img {
-    width: 18.75rem;
+  .animatedImage {
     transform: translatey(0px);
     animation: float 5s ease-in-out infinite;
   }
