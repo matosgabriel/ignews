@@ -1,7 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { getPrismicClient } from '../../services/prismic';
 import { RichText } from 'prismic-dom';
 
@@ -24,7 +23,7 @@ function Post({ post }: PostProps) {
   return (
     <>
       <Head>
-        <title>Post | ig.news</title>
+        <title>{post.title} | ig.news</title>
       </Head>
       <main className={styles.container}>
         <article className={styles.post}>
@@ -49,10 +48,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
 
   console.log(session);
 
-  if (!session.activeSubscription) {
-    return { 
+  if (!session?.activeSubscription) {
+    return {
       redirect: {
-        destination: '/',
+        destination: `/posts/preview/${slug}`,
         permanent: false
       } 
     }
