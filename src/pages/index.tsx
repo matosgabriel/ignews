@@ -1,17 +1,17 @@
-import { GetStaticProps } from 'next';
-import Head from 'next/head';
-import { SubscribeButton } from '../components/SubscribeButton';
-import Image from 'next/image';
+import { GetStaticProps } from "next";
+import Head from "next/head";
+import { SubscribeButton } from "../components/SubscribeButton";
+import Image from "next/image";
 
-import styles from './home.module.scss';
+import styles from "./home.module.scss";
 
-import { stripe } from '../services/stripe';
+import { stripe } from "../services/stripe";
 
 interface HomeProps {
   product: {
     priceId: string;
     amount: number;
-  }
+  };
 }
 
 export default function Home({ product }: HomeProps) {
@@ -25,39 +25,46 @@ export default function Home({ product }: HomeProps) {
           <span>👏 Hey, welcome</span>
 
           <h1>
-            New about<br />
+            New about
+            <br />
             the <span>React</span> world
           </h1>
 
           <p>
-            Get access to all the publications<br />
+            Get access to all the publications
+            <br />
             for <span>{product.amount} month</span>
           </p>
 
-          <SubscribeButton priceId={product.priceId} />
+          <SubscribeButton />
         </section>
 
         <div className={styles.animatedImage}>
-          <Image src="/images/avatar.svg" width={350} height={350} alt="Girl coding" />
+          <Image
+            src="/images/avatar.svg"
+            width={350}
+            height={350}
+            alt="Girl coding"
+          />
         </div>
       </main>
     </>
-  )
+  );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const price = await stripe.prices.retrieve('price_1KUBBDDZVlnLB2EzdpjQrR4b');
+  const price = await stripe.prices.retrieve("price_1KUBBDDZVlnLB2EzdpjQrR4b");
 
   const product = {
     priceId: price.id,
-    amount: new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price.unit_amount/100)
+    amount: new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price.unit_amount / 100),
   };
 
   return {
     props: { product },
-    revalidate: 60 * 60 * 24 // 24 hours
-  }
-}
+    revalidate: 60 * 60 * 24, // 24 hours
+  };
+};

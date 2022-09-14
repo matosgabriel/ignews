@@ -19,7 +19,7 @@ export function SubscribeButton() {
 
     // Ensures that only non subscribed users can create a subscription
     if (data.activeSubscription) {
-      route.push("/");
+      route.push("/posts");
       alert("You have an active subscription!");
       return;
     }
