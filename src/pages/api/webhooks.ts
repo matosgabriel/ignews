@@ -36,7 +36,8 @@ async function WebhooksHandler(
   response: NextApiResponse
 ) {
   if (request.method === "POST") {
-    const buf = await buffer(request.body);
+    // const buf = await buffer(request);
+    const buf = request.httpVersion;
     const secret = request.headers["STRIPE-SIGNATURE"];
 
     let event: Stripe.Event;
