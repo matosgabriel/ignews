@@ -4,20 +4,17 @@ import { Readable } from "stream";
 import Stripe from "stripe";
 import { stripe } from "../../services/stripe";
 import { saveSubscription } from "./_lib/manageSubscription";
-import { buffer } from "micro";
 
-// // Converts Stream request in a traditional HTTP request
-// async function buffer(readable: Readable) {
-//   const chunks = [];
+// Converts Stream request in a traditional HTTP request
+async function buffer(readable: Readable) {
+  const chunks = [];
 
-//   for await (const chunk of readable) {
-//     chunks.push(
-//       typeof chunk === 'string' ? Buffer.from(chunk) : chunk
-//     );
-//   }
+  for await (const chunk of readable) {
+    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  }
 
-//   return Buffer.concat(chunks);
-// }
+  return Buffer.concat(chunks);
+}
 
 export const config = {
   api: {
@@ -36,7 +33,6 @@ async function WebhooksHandler(
   response: NextApiResponse
 ) {
   if (request.method === "POST") {
-    // const buf = await buffer(request);
     const buf = await buffer(request);
     const secret = request.headers["stripe-signature"];
 
