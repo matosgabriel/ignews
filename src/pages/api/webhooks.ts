@@ -4,20 +4,23 @@ import { Readable } from "stream";
 import Stripe from "stripe";
 import { stripe } from "../../services/stripe";
 import { saveSubscription } from "./_lib/manageSubscription";
-import { buffer } from "micro";
 
-// // Converts Stream request in a traditional HTTP request
-// async function buffer(readable: Readable) {
-//   const chunks = [];
+import Cors from "micro-cors";
 
-//   for await (const chunk of readable) {
-//     chunks.push(
-//       typeof chunk === 'string' ? Buffer.from(chunk) : chunk
-//     );
-//   }
+const cors = Cors({
+  allowMethods: ["POST", "HEAD"],
+});
 
-//   return Buffer.concat(chunks);
-// }
+// Converts Stream request in a traditional HTTP request
+async function buffer(readable: Readable) {
+  const chunks = [];
+
+  for await (const chunk of readable) {
+    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  }
+
+  return Buffer.concat(chunks);
+}
 
 export const config = {
   api: {
@@ -43,7 +46,7 @@ async function WebhooksHandler(
 
     try {
       event = stripe.webhooks.constructEvent(
-        buf,
+        buf.toString(),
         secret,
         process.env.STRIPE_WEBHOOK_SECRET
       );
@@ -93,4 +96,5 @@ async function WebhooksHandler(
   }
 }
 
-export default WebhooksHandler;
+// export default WebhooksHandler;
+export default cors(WebhooksHandler as any);
