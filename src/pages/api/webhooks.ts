@@ -47,7 +47,7 @@ async function WebhooksHandler(
     } catch (err) {
       return response
         .status(400)
-        .json({ error: `Webhook error: ${err.message}`, request });
+        .send({ error: `Webhook error: ${err.message}`, request });
     }
 
     const eventType = event.type;
