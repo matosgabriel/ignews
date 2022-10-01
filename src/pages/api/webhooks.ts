@@ -45,7 +45,9 @@ async function WebhooksHandler(
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      return response.status(400).send(`Webhook error: ${err.message}`);
+      return response
+        .status(400)
+        .json({ error: `Webhook error: ${err.message}`, request });
     }
 
     const eventType = event.type;
